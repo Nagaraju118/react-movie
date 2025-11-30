@@ -4,6 +4,10 @@ on:
   push:
     branches: [ "main" ]
 
+# 👇 REQUIRED for GitHub Actions to push lockfile
+permissions:
+  contents: write
+
 env:
   AWS_REGION: ap-south-1
   ECR_REGISTRY: 475190216605.dkr.ecr.ap-south-1.amazonaws.com
@@ -38,7 +42,7 @@ jobs:
           git push
 
   # -----------------------------
-  # 2) DEPLOY JOB (runs AFTER lockfile)
+  # 2) DEPLOY JOB (after lockfile)
   # -----------------------------
   deploy:
     needs: generate-lockfile
@@ -86,4 +90,4 @@ jobs:
         run: kubectl apply -f k8s/ingress.yaml
 
       - name: Update deployment image
-        run: kubectl set image deployment/react-movie react-movie=$ECR_REGISTRY/$ECR_REPOSITORY:latest
+        run: kubectl set image deployment/react-movie react-movie=$ECR_REGISTRY/$ECR_REPOSITORY:latest -n $NAMESPACE
